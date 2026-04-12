@@ -3,7 +3,13 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Nanum Gothic', sans-serif; }
   .app { background: #E8F4FD; min-height: 100vh; padding: 12px; }
-  .header { background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%); border-radius: 20px; padding: 16px; text-align: center; margin-bottom: 12px; position: relative; overflow: hidden; }
+  .header { background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%); border-radius: 20px; padding: 16px; text-align: center; margin-bottom: 12px; position: relative; overflow: visible; }
+  .sticky-dday { position: absolute; top: 10px; right: 10px; z-index: 100; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+  .sticky-dday-item { background: rgba(255,255,255,0.18); backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.4); border-radius: 10px; padding: 4px 9px; text-align: right; min-width: 78px; }
+  .sticky-dday-item .sd-label { font-size: 9px; color: rgba(255,255,255,0.85); line-height: 1.2; font-family: "Nanum Gothic", sans-serif; }
+  .sticky-dday-item .sd-count { font-family: "Jua", sans-serif; font-size: 15px; color: #FFD600; line-height: 1.2; }
+  .sticky-dday-item.mid .sd-count { color: #69FF47; }
+  .sticky-dday-item.fin .sd-count { color: #FF9800; }
   .header::before { content: ''; position: absolute; top: -20px; left: -20px; width: 80px; height: 80px; background: rgba(255,255,255,0.08); border-radius: 50%; }
   .header::after { content: ''; position: absolute; bottom: -15px; right: -15px; width: 60px; height: 60px; background: rgba(255,255,255,0.08); border-radius: 50%; }
   .header h1 { font-family: 'Jua', sans-serif; color: white; font-size: 17px; margin-bottom: 4px; }
@@ -123,6 +129,21 @@
 
 <div class="app">
   <div class="header">
+    <!-- 항상 노출 D-DAY 위젯 -->
+    <div class="sticky-dday">
+      <div class="sticky-dday-item">
+        <div class="sd-label">🎯 수능</div>
+        <div class="sd-count" id="hd-suneung">...</div>
+      </div>
+      <div class="sticky-dday-item mid">
+        <div class="sd-label">📝 중간고사</div>
+        <div class="sd-count" id="hd-mid">...</div>
+      </div>
+      <div class="sticky-dday-item fin">
+        <div class="sd-label">📝 기말고사</div>
+        <div class="sd-count" id="hd-fin">...</div>
+      </div>
+    </div>
     <div class="pororo-row">
       <span class="pororo">🐧</span>
       <span class="pororo">📜</span>
@@ -151,6 +172,8 @@
     <button class="nav-btn" onclick="showSection('monthly')">📅 월간플랜</button>
     <button class="nav-btn" onclick="showSection('manage')">💪 관리루틴</button>
     <button class="nav-btn" onclick="showSection('mental')">🧠 멘탈케어</button>
+    <button class="nav-btn" onclick="showSection('ddays')">⏰ D-DAY</button>
+    <button class="nav-btn" onclick="showSection('links')">🔗 입시링크</button>
   </div>
 
   <!-- 홈 -->
@@ -540,6 +563,165 @@
         <button onclick="saveGood()" style="background:#2196F3;color:white;border:none;border-radius:12px;padding:10px;font-family:'Jua',sans-serif;font-size:13px;cursor:pointer;">저장하기 🌟</button>
       </div>
       <div id="good-msg" style="display:none;margin-top:8px;text-align:center;font-family:'Jua',sans-serif;font-size:13px;color:#1565C0;background:#E3F2FD;border-radius:10px;padding:8px;">오늘도 정말 잘했어! 공주대 사범대 합격 뽀로로가 응원해 🐧</div>
+    </div>
+  </div>
+
+  <!-- D-DAY 알림 섹션 -->
+  <div id="ddays" class="section">
+    <div class="card">
+      <div class="card-title">⏰ 주요 D-DAY 카운트다운</div>
+
+      <!-- 수능 -->
+      <div class="dday-box" style="margin-bottom:10px;">
+        <div style="font-size:13px;color:rgba(255,255,255,0.85);margin-bottom:4px;">🎯 2026 수능 (11월 19일 목요일)</div>
+        <div class="dday-num" id="dd-suneung">계산중...</div>
+        <div class="dday-label">지금 이 순간도 수능은 다가오고 있어! 💪</div>
+      </div>
+
+      <!-- 중간고사 -->
+      <div style="background:linear-gradient(135deg,#E8F5E9 0%,#C8E6C9 100%);border-radius:14px;padding:14px;text-align:center;margin-bottom:10px;border:2px solid #81C784;">
+        <div style="font-size:13px;color:#2E7D32;margin-bottom:4px;font-family:'Jua',sans-serif;">📝 다정고 중간고사 (4월 23일)</div>
+        <div style="font-family:'Jua',sans-serif;font-size:36px;color:#1B5E20;" id="dd-mid">계산중...</div>
+        <div style="font-size:12px;color:#388E3C;margin-top:2px;" id="dd-mid-msg">내신을 잡아야 수시가 열린다!</div>
+      </div>
+
+      <!-- 기말고사 -->
+      <div style="background:linear-gradient(135deg,#FFF3E0 0%,#FFE0B2 100%);border-radius:14px;padding:14px;text-align:center;margin-bottom:10px;border:2px solid #FFB74D;">
+        <div style="font-size:13px;color:#E65100;margin-bottom:4px;font-family:'Jua',sans-serif;">📝 다정고 기말고사 (6월 30일)</div>
+        <div style="font-family:'Jua',sans-serif;font-size:36px;color:#BF360C;" id="dd-fin">계산중...</div>
+        <div style="font-size:12px;color:#E65100;margin-top:2px;" id="dd-fin-msg">기말까지 끝내면 1학기 생기부 완성!</div>
+      </div>
+
+      <!-- 알림 설정 안내 -->
+      <div class="alert-box" style="border-left-color:#1565C0;background:#E3F2FD;color:#0D47A1;">
+        <div class="alert-title" style="color:#1565C0;">📳 스마트폰 알림 설정 방법</div>
+        아래 버튼을 눌러 스마트폰 캘린더에 일정을 바로 추가하세요!<br>
+        <small>또는 스마트폰 기본 캘린더 앱 → 날짜 선택 → 반복 알림 설정</small>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        <a href="https://calendar.google.com/calendar/r/eventedit?text=2026+수능+D-DAY&dates=20261119/20261120&details=공주대+사범대+합격을+향한+수능!+최선을+다하자!" target="_blank"
+          style="display:block;background:#1565C0;color:white;text-align:center;padding:10px;border-radius:12px;text-decoration:none;font-family:'Jua',sans-serif;font-size:13px;">
+          📅 구글 캘린더에 수능 추가하기
+        </a>
+        <a href="https://calendar.google.com/calendar/r/eventedit?text=다정고+중간고사&dates=20260423/20260424&details=내신+총력전!+공주대+사범대를+향해!" target="_blank"
+          style="display:block;background:#2E7D32;color:white;text-align:center;padding:10px;border-radius:12px;text-decoration:none;font-family:'Jua',sans-serif;font-size:13px;">
+          📅 구글 캘린더에 중간고사 추가하기
+        </a>
+        <a href="https://calendar.google.com/calendar/r/eventedit?text=다정고+기말고사&dates=20260630/20260701&details=1학기+마무리!+생기부+세특+활동+완료!" target="_blank"
+          style="display:block;background:#E65100;color:white;text-align:center;padding:10px;border-radius:12px;text-decoration:none;font-family:'Jua',sans-serif;font-size:13px;">
+          📅 구글 캘린더에 기말고사 추가하기
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📆 수시모집 주요 일정 D-DAY</div>
+      <div id="dd-schedule-list"></div>
+    </div>
+
+    <div class="encourage">
+      <div class="e-icon">⏰</div>
+      <div class="e-text">매일 D-Day를 확인하며 목표를 잊지 말자! 뽀로로처럼! 🐧</div>
+    </div>
+  </div>
+
+  <!-- 입시 링크 모음 섹션 -->
+  <div id="links" class="section">
+    <div class="card">
+      <div class="card-title">🏛️ 공주대학교 사범대학</div>
+      <span class="badge green">역사교육과</span> <span class="badge geo">지리교육과</span>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-top:8px;">
+        <a href="https://ipsi.kongju.ac.kr/" target="_blank" class="link-btn blue">🎓 공주대 입학안내 홈페이지 (ipsi.kongju.ac.kr)</a>
+        <a href="https://ipsi.kongju.ac.kr/kor/56/pdfViewer/CAT006" target="_blank" class="link-btn blue">📋 수시모집 모집요강 (PDF 바로보기)</a>
+        <a href="https://ipsi.kongju.ac.kr/kor/57/pdfViewer/CAT074" target="_blank" class="link-btn blue">📋 정시모집 모집요강 (PDF 바로보기)</a>
+        <a href="https://sabum.kongju.ac.kr/" target="_blank" class="link-btn">🏫 공주대 사범대학 홈페이지</a>
+        <a href="https://www.kongju.ac.kr/KNU/16727/subview.do" target="_blank" class="link-btn">📜 역사교육과 소개 페이지</a>
+      </div>
+      <div class="success-box" style="margin-top:10px;">
+        <div class="s-title">✅ 2027 입시 (2026 수시·정시) 모집요강</div>
+        2026년 7~8월경 공주대 입학안내 홈페이지에 수시 모집요강 발표 예정<br>
+        입학 문의: 041-850-0900 (입학본부)
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏛️ 충남대학교 사학과</div>
+      <span class="badge hist">사학과</span> <span class="badge">교직이수 가능</span>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-top:8px;">
+        <a href="https://ipsi.cnu.ac.kr/" target="_blank" class="link-btn blue">🎓 충남대 입학본부 홈페이지 (ipsi.cnu.ac.kr)</a>
+        <a href="https://ipsi.cnu.ac.kr/kor/sub01/pdfViewer/CAT002" target="_blank" class="link-btn blue">📋 수시모집 모집요강</a>
+        <a href="https://ipsi.cnu.ac.kr/kor/sub01_1/pdfViewer/CAT030" target="_blank" class="link-btn blue">📋 정시모집 모집요강</a>
+        <a href="https://www.jinhak.com/univinfo/info/UnivDetail.aspx?UnivCode=1140" target="_blank" class="link-btn green">📊 진학사 — 충남대 입시결과·경쟁률</a>
+        <a href="https://plus.cnu.ac.kr/html/kr/intro.html" target="_blank" class="link-btn">📣 충남대 합격자 발표 페이지</a>
+      </div>
+      <div class="alert-box" style="margin-top:10px;">
+        <div class="alert-title">⚠️ 사학과 특이사항</div>
+        충남대 사학과는 교육대학이 아닌 인문대 소속 → 교직과정(이수예정자 선발) 별도 신청 필요<br>
+        교사 임용을 원하는 경우 교직이수 여부 반드시 확인!<br>
+        입학 문의: 1644-8433 (내선 1번)
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏛️ 충북대학교 역사교육과 · 지리교육과</div>
+      <span class="badge hist">역사교육과</span> <span class="badge geo">지리교육과</span>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-top:8px;">
+        <a href="https://ipsi.chungbuk.ac.kr/" target="_blank" class="link-btn blue">🎓 충북대 입학정보 홈페이지 (ipsi.chungbuk.ac.kr)</a>
+        <a href="https://ipsi.chungbuk.ac.kr/kor/transfer/doctrine/view.do" target="_blank" class="link-btn blue">📋 모집요강 다운로드 페이지</a>
+        <a href="https://edu.chungbuk.ac.kr/his/index.do" target="_blank" class="link-btn hist-link">📜 역사교육과 학과 홈페이지</a>
+        <a href="https://edu.chungbuk.ac.kr/geo/index.do" target="_blank" class="link-btn geo-link">🌍 지리교육과 학과 홈페이지</a>
+        <a href="https://www.cbnu.ac.kr/www/contents.do?key=398" target="_blank" class="link-btn">🏫 충북대 사범대학 홈페이지</a>
+      </div>
+      <div class="success-box" style="margin-top:10px;">
+        <div class="s-title">✅ 입학 문의</div>
+        충북대 입학처: 043-261-2882<br>
+        역사교육과: 043-261-2683 | 지리교육과: 043-261-2693
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏛️ 서원대학교 역사교육과</div>
+      <span class="badge hist">역사교육과</span> <span class="badge green">수능최저 없음</span>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-top:8px;">
+        <a href="https://www.seowon.ac.kr/sites/iphak/" target="_blank" class="link-btn blue">🎓 서원대 입학안내 홈페이지</a>
+        <a href="https://www.seowon.ac.kr/iphak/1122/subview.do" target="_blank" class="link-btn blue">📋 수시모집 모집요강</a>
+        <a href="https://www.seowon.ac.kr/iphak/1127/subview..do" target="_blank" class="link-btn blue">📋 정시모집 모집요강</a>
+        <a href="https://www.seowon.ac.kr/history/index.do" target="_blank" class="link-btn hist-link">📜 역사교육과 학과 홈페이지</a>
+        <a href="https://www.seowon.ac.kr/educa/index.do" target="_blank" class="link-btn">🏫 서원대 사범대학 홈페이지</a>
+        <a href="https://www.univ100.kr/admission/201" target="_blank" class="link-btn green">💬 서원대 합격 후기 (대학백과)</a>
+      </div>
+      <div class="tip-box" style="margin-top:10px;">
+        <div class="tip-icon">💡</div>
+        <div class="tip-title">서원대 역사교육과 지원 포인트</div>
+        <div class="tip-text">수능 최저 없음 — 내신 4~5등급도 도전 가능한 충청권 안전 지원처<br>창의면접전형은 내신보다 면접 비중이 높아 역사 교직관 준비가 핵심!</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔍 입시결과 통합 조회 사이트</div>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-top:8px;">
+        <a href="https://www.adiga.kr/" target="_blank" class="link-btn blue">🏛️ 대입정보포털 어디가 (교육부·대교협 공식)</a>
+        <a href="https://uadiga.co.kr/" target="_blank" class="link-btn green">📊 입결검색기 — 최근 4개년 수시 입결 무료 조회</a>
+        <a href="https://www.jinhak.com/" target="_blank" class="link-btn">📈 진학사 — 합격예측·경쟁률 분석</a>
+        <a href="https://www.univ100.kr/" target="_blank" class="link-btn">👥 대학백과 — 선배 합격 후기</a>
+      </div>
+      <div class="alert-box" style="margin-top:10px;">
+        <div class="alert-title">⚠️ 입시 데이터 활용 주의사항</div>
+        · 각 대학 공식 홈페이지 발표 자료가 가장 정확<br>
+        · 사설 사이트 입결은 참고용으로만 활용<br>
+        · <b>2027년도 모집요강</b>은 2026년 7~8월에 각 대학 홈페이지에서 공식 발표<br>
+        · 수시 원서접수 전 반드시 최신 모집요강 재확인 필수!
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 원서접수 공통 사이트</div>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-top:8px;">
+        <a href="https://www.applys.co.kr/" target="_blank" class="link-btn blue">✏️ 진학어플라이 — 수시·정시 원서접수 (주요 국립대)</a>
+        <a href="https://www.uniapply.kr/" target="_blank" class="link-btn">✏️ 유니어플라이 — 일부 사립대 원서접수</a>
+        <a href="https://www.suneung.re.kr/" target="_blank" class="link-btn">📝 수능 성적 조회 (한국교육과정평가원)</a>
+      </div>
     </div>
   </div>
 
@@ -1018,6 +1200,14 @@
   .ex-day.done { background: #4CAF50; color: white; border-color: #2E7D32; }
   .mood-btn { background: #E3F2FD; border: 2px solid transparent; border-radius: 50%; width: 44px; height: 44px; font-size: 22px; cursor: pointer; transition: all 0.2s; }
   .mood-btn.selected { border-color: #2196F3; background: #BBDEFB; transform: scale(1.15); }
+  .link-btn { display: block; padding: 11px 14px; border-radius: 12px; text-decoration: none; font-size: 13px; font-family: 'Nanum Gothic', sans-serif; font-weight: 700; border: 2px solid #E3F2FD; background: #F8FBFF; color: #1565C0; transition: all 0.18s; }
+  .link-btn:hover { background: #E3F2FD; }
+  .link-btn.blue { background: #1565C0; color: white; border-color: #0D47A1; }
+  .link-btn.blue:hover { background: #0D47A1; }
+  .link-btn.green { background: #2E7D32; color: white; border-color: #1B5E20; }
+  .link-btn.green:hover { background: #1B5E20; }
+  .link-btn.hist-link { background: #FFF8E1; color: #8B6914; border-color: #FFCC02; }
+  .link-btn.geo-link { background: #E0F7FA; color: #006064; border-color: #80DEEA; }
 </style>
 
 <script>
@@ -1416,4 +1606,89 @@ calcDday();
 checkState = deptData['hist'].checks.map(() => false);
 initChecklist();
 initCalendar();
+
+// ===== D-DAY 추가 계산 =====
+(function() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  function calcDD(year, month, day) {
+    const target = new Date(year, month-1, day);
+    target.setHours(0,0,0,0);
+    const diff = Math.ceil((target - today) / (1000*60*60*24));
+    if (diff > 0) return 'D-' + diff;
+    if (diff === 0) return 'D-DAY!';
+    return '완료 (D+' + Math.abs(diff) + ')';
+  }
+
+  // 수능
+  const ddS = document.getElementById('dd-suneung');
+  if (ddS) {
+    const d = calcDD(2026,11,19);
+    ddS.textContent = d;
+  }
+
+  // 중간고사
+  const ddM = document.getElementById('dd-mid');
+  const ddMmsg = document.getElementById('dd-mid-msg');
+  if (ddM) {
+    const diff = Math.ceil((new Date(2026,3,23) - today)/(1000*60*60*24));
+    ddM.textContent = diff > 0 ? 'D-'+diff : diff === 0 ? 'D-DAY!' : '완료!';
+    if (ddMmsg) {
+      if (diff <= 0) ddMmsg.textContent = '중간고사 수고했어! 이제 기말 준비! 💪';
+      else if (diff <= 7) ddMmsg.textContent = '⚠️ 일주일 남았어! 총력전 돌입!';
+      else if (diff <= 14) ddMmsg.textContent = '2주 남았다! 마무리 점검 시작!';
+    }
+  }
+
+  // 기말고사
+  const ddF = document.getElementById('dd-fin');
+  const ddFmsg = document.getElementById('dd-fin-msg');
+  if (ddF) {
+    const diff = Math.ceil((new Date(2026,5,30) - today)/(1000*60*60*24));
+    ddF.textContent = diff > 0 ? 'D-'+diff : diff === 0 ? 'D-DAY!' : '완료!';
+    if (ddFmsg) {
+      if (diff <= 0) ddFmsg.textContent = '기말 끝! 1학기 생기부 완성! 🎉';
+      else if (diff <= 7) ddFmsg.textContent = '⚠️ 기말 1주일 전! 집중!';
+    }
+  }
+
+  // 수시모집 주요 일정
+  const schedules = [
+    { label: '📋 2026 수시 원서접수 (예정)', date: [2026,9,7], color: '#E53935' },
+    { label: '📝 9월 모의고사', date: [2026,9,10], color: '#1565C0' },
+    { label: '🎤 수시 면접 (공주대 예정)', date: [2026,11,7], color: '#6A1B9A' },
+    { label: '🎯 2026 수능 시험일', date: [2026,11,19], color: '#B71C1C' },
+    { label: '🏆 수시 최종 합격 발표 (예정)', date: [2026,12,15], color: '#2E7D32' },
+    { label: '📮 정시 원서접수 (예정)', date: [2026,12,26], color: '#E65100' },
+  ];
+
+  const el = document.getElementById('dd-schedule-list');
+  if (el) {
+    el.innerHTML = schedules.map(s => {
+      const d = Math.ceil((new Date(s.date[0],s.date[1]-1,s.date[2]) - today)/(1000*60*60*24));
+      const dStr = d > 0 ? 'D-'+d : d === 0 ? 'D-DAY!' : '완료';
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F5F5F5;font-size:12px;">
+        <span>${s.label}</span>
+        <span style="font-family:'Jua',sans-serif;font-size:15px;color:${s.color};font-weight:700;">${dStr}</span>
+      </div>`;
+    }).join('');
+  }
+})();
+
+// ===== 헤더 D-DAY 위젯 업데이트 =====
+(function() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  function dd(y,m,d) {
+    const t = new Date(y,m-1,d); t.setHours(0,0,0,0);
+    const diff = Math.ceil((t - today)/(1000*60*60*24));
+    return diff > 0 ? 'D-'+diff : diff === 0 ? 'D-DAY!' : '완료!';
+  }
+  const hs = document.getElementById('hd-suneung');
+  const hm = document.getElementById('hd-mid');
+  const hf = document.getElementById('hd-fin');
+  if(hs) hs.textContent = dd(2026,11,19);
+  if(hm) hm.textContent = dd(2026,4,23);
+  if(hf) hf.textContent = dd(2026,6,30);
+})();
 </script>
